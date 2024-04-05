@@ -1,0 +1,24 @@
+# Key:
+# {{ image }}: will be replaced with `base.image` from .mlc/config.toml
+# {{ pkg }}  : will be replaced with the name of the package being built
+# Post-build, the contents of /out will be copied to the host at `repo.out` from .mlc/config.toml
+
+FROM {{ image }}
+
+RUN  mkdir /out
+COPY {{ pkg }} /tmp/{{ pkg }}
+
+RUN  pacman -Syu --noconfirm
+RUN  pacman -S --noconfirm --needed base-devel
+
+RUN  useradd -m -G wheel build-user
+RUN  echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+RUN  chown -R build-user /tmp/{{ pkg }}
+
+USER build-user
+WORKDIR /tmp/{{ pkg }}
+
+RUN  makepkg -s {{ flags }} --noconfirm
+
+USER root
+RUN  cp *.pkg.tar.* /out

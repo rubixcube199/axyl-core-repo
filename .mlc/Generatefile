@@ -1,0 +1,25 @@
+# Key:
+# {{ image }}: will be replaced with `base.image` from .mlc/config.toml
+# {{ name }} : will be replaced with `repo.name` from .mlc/config.toml
+# Post-build, the contents of /repo will be copied to the host at `repo.repo` from .mlc/config.toml
+# If `repo.security` is set to true, all resultant *.pkg.tar.* files will be GPG signed by the host
+
+FROM {{ image }}
+
+RUN  mkdir /{{ repo }}
+COPY out /tmp/{{ name }}
+
+RUN  pacman -Syu --noconfirm
+RUN  pacman -S --noconfirm --needed pacman-contrib
+
+RUN useradd -m -G wheel generate-user
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+RUN chown -R generate-user /tmp/{{ name }}
+
+USER generate-user
+WORKDIR /tmp/{{ name }}
+
+RUN  repo-add {{ name }}.db.tar.gz  *.pkg.tar.*
+
+USER root
+RUN  cp /tmp/{{ name }}/* /{{ repo }}

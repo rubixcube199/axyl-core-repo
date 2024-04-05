@@ -1,0 +1,23 @@
+[base]
+src = "/var/home/judge/axyl-core-repo"
+podman = false
+image = "archlinux:latest"
+
+[repo]
+name = "axyl-core-repo"
+out = "/var/home/judge/axyl-core-repo/out"
+repo = "/var/home/judge/axyl-core-repo/repo"
+
+[repo.security]
+sign = false
+
+[repositories]
+names = [
+    "crs:malachite@mlc3-rewrite",
+    "aur:ame",
+    "aur:devour",
+]
+
+[repositories.keys]
+crs = "https://git.getcryst.al/crystal/software/{}.git"
+aur = "https://aur.archlinux.org/{}.git"
